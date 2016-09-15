@@ -493,7 +493,8 @@ class Crawler implements \Countable, \IteratorAggregate
     public function children()
     {
         if (!$this->nodes) {
-            throw new \InvalidArgumentException('The current node list is empty.');
+            return null;
+//            throw new \InvalidArgumentException('The current node list is empty.');
         }
 
         $node = $this->getNode(0)->firstChild;
@@ -513,7 +514,8 @@ class Crawler implements \Countable, \IteratorAggregate
     public function attr($attribute)
     {
         if (!$this->nodes) {
-            throw new \InvalidArgumentException('The current node list is empty.');
+            return null;
+//            throw new \InvalidArgumentException('The current node list is empty.');
         }
 
         $node = $this->getNode(0);

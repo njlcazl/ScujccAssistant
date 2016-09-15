@@ -11,9 +11,9 @@ namespace App\Api\Transformers;
 
 use App\Classes;
 
-class ClassesTransformer extends \League\Fractal\TransformerAbstract
+class ClassesTransformer extends Transformer
 {
-    public function transform(Classes $user) {
+    public function transform($user) {
         return [
             'User' => $user['username'],
             'ClassName' => $user['class_name'],

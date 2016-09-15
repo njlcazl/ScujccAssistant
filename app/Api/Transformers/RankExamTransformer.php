@@ -11,9 +11,9 @@ namespace App\Api\Transformers;
 
 use App\RankExam;
 
-class RankExamTransformer extends \League\Fractal\TransformerAbstract
+class RankExamTransformer extends Transformer
 {
-    public function transform(RankExam $rankexam) {
+    public function transform($rankexam) {
         return [
             'User' => $rankexam['username'],
             'SchoolYear' => $rankexam['school_year'],

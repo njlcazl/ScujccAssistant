@@ -28,15 +28,16 @@ trait  Parser {
         $crawler = new Crawler((string)$body);
         $crawler = $crawler->filter('#Table1');
         $schedule = $crawler->children();
+        if ($schedule == null) return null;
         $data_line = [];
-        $Null_string = $schedule->eq(1)->children()->eq(1)->html();
         //loop the row
         for ($i=2; $i <= 10; $i++) {
             $cnt = $schedule->eq($i)->children()->count();
             for($j = 2; $j < $cnt;$j++) {
                 $schedule_info = trim($schedule->eq($i)->children()->eq($j)->html());
-                if(strcmp($schedule_info, $Null_string) != 0 ) {
-                    array_push($data_line, $schedule_info);
+                $text = str_replace( chr( 194 ) . chr( 160 ), '', $schedule_info );
+                if($text != '') {
+                    array_push($data_line, $text);
                 }
             }
         }
@@ -56,9 +57,11 @@ trait  Parser {
         $crawler = new Crawler((string)$body);
         $crawler = $crawler->filter($selector);
         $tmp_crawler = $crawler->children();
+        if ($tmp_crawler == null) return null;
         $data = $tmp_crawler->each(function (Crawler $node, $i) {
             return $node->children()->each(function (Crawler $node, $j) {
-                return $node->text();
+                $text = str_replace( chr( 194 ) . chr( 160 ), '', $node->text() );
+                return $text;
             });
         });
         //Unset the title.

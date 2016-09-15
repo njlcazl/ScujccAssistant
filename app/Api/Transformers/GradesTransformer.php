@@ -11,9 +11,9 @@ namespace App\Api\Transformers;
 
 use App\Grades;
 
-class GradesTransformer extends \League\Fractal\TransformerAbstract
+class GradesTransformer extends Transformer
 {
-    public function transform(Grades $grade) {
+    public function transform($grade) {
         return [
              'User' => $grade['username'],
              'SchoolYear' => $grade['school_year'],

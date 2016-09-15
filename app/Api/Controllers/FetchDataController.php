@@ -28,13 +28,21 @@ class FetchDataController extends BaseController
 
         $exist = $user->isExist($request->get('username'));
         if(! $exist) {
-            $data = $user->register($request);
-            $stu_id = $data->username;
-            $password = $data->password;
-            $user = ['stu_id' => $stu_id, 'stu_pwd' => $password];
-            $client = new Lcrawl('http://jwweb.scujcc.cn/', $user, false);
+            $stu_id = $request->get('username');
+            $password = $request->get('password');
+            $user_data = ['stu_id' => $stu_id, 'stu_pwd' => $password];
+            $client = new Lcrawl('http://jwweb.scujcc.cn/', $user_data, false);
             $client->login();
             $all = $client->setUa('Lcrawl Spider V2.0.2')->getAll();
+            if ($all['Schedule'] == null || $all['RankExam'] == null || $all['Grade'] == null) {
+                $status = [
+                    'message' => 'failed',
+                    'status_code' => '403'
+                ];
+                return [
+                    'status' => $status
+                ] ;
+            }
             $dealer = new ClassController();
             $dealer->dealClass($all['Schedule'], $stu_id);
 
@@ -43,12 +51,16 @@ class FetchDataController extends BaseController
 
             $dealer = new GradeController();
             $dealer->dealGrade($all['Grade'], $stu_id);
+
+            $user->register($request);
         }
-        $ret_data = [
+        $status = [
             'message' => 'success',
             'status_code' => '200'
         ];
-        return $ret_data;
+        return [
+            'status' => $status
+        ];
     }
 
     public function getClass(Request $request) {
@@ -56,9 +68,27 @@ class FetchDataController extends BaseController
             'username' => 'required',
         ]);
 
-        $retData = Classes::where('username', $request->get('username'))->get();
+        $ClassData = Classes::where('username', $request->get('username'))->get();
 
-        return $this->collection($retData, new ClassesTransformer());
+        if ($ClassData->count() == 0) {
+            $status = [
+                'message' => 'failed',
+                'status_code' => '404'
+            ];
+            return [
+                'status' => $status
+            ];
+        }
+        $status = [
+            'message' => 'success',
+            'status_code' => '200'
+        ];
+        $transformer = new ClassesTransformer();
+        $retData = [
+            'status' => $status,
+            'data' => $transformer->transformCollection($ClassData->toArray())
+        ];
+        return $retData;
     }
 
     public function getGrade(Request $request) {
@@ -66,9 +96,26 @@ class FetchDataController extends BaseController
             'username' => 'required',
         ]);
 
-        $retData = Grades::where('username', $request->get('username'))->get();
-
-        return $this->collection($retData, new GradesTransformer());
+        $GradeData = Grades::where('username', $request->get('username'))->get();
+        if ($GradeData->count() == 0) {
+            $status = [
+                'message' => 'failed',
+                'status_code' => '404'
+            ];
+            return [
+                'status' => $status
+            ];
+        }
+        $status = [
+            'message' => 'success',
+            'status_code' => '200'
+        ];
+        $transformer = new GradesTransformer();
+        $retData = [
+            'status' => $status,
+            'data' =>  $transformer->transformCollection($GradeData->toArray())
+        ];
+        return $retData;
     }
 
     public function getRankExam(Request $request) {
@@ -76,8 +123,25 @@ class FetchDataController extends BaseController
             'username' => 'required',
         ]);
 
-        $retData = RankExam::where('username', $request->get('username'))->get();
-
-        return $this->collection($retData, new RankExamTransformer());
+        $RankExamData = RankExam::where('username', $request->get('username'))->get();
+        if ($RankExamData->count() == 0) {
+            $status = [
+                'message' => 'failed',
+                'status_code' => '404'
+            ];
+            return [
+                'status' => $status
+            ];
+        }
+        $status = [
+            'message' => 'success',
+            'status_code' => '200'
+        ];
+        $transformer = new RankExamTransformer();
+        $retData = [
+            'status' => $status,
+            'data' => $transformer->transformCollection($RankExamData->toArray())
+        ];
+        return $retData;
     }
 }
